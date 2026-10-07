@@ -1,92 +1,55 @@
-package com.example.kunlikvazifalar.data.repository
+﻿package com.example.kunlikvazifalar.data.repository
 
 import android.content.Context
 import com.example.kunlikvazifalar.data.db.TaskDatabaseHelper
 import com.example.kunlikvazifalar.data.model.Task
+import com.example.kunlikvazifalar.data.model.TaskPriority
 import com.example.kunlikvazifalar.notification.NotificationHelper
 import com.example.kunlikvazifalar.notification.ReminderScheduleResult
 import com.example.kunlikvazifalar.util.DateUtils
 
 class TaskRepository(private val context: Context) {
-
     private val dbHelper = TaskDatabaseHelper(context)
+    init { NotificationHelper.createNotificationChannel(context) }
+    fun getTodayTasks(todayDate: String) = dbHelper.getTasksForDate(todayDate)
+    fun getHistoryTasks(currentDate: String) = dbHelper.getHistoryTasks(currentDate)
+    fun getTask(id: Long) = dbHelper.getTaskById(id)
 
-    init {
-        NotificationHelper.createNotificationChannel(context)
+    fun addTask(text: String, date: String, time: String?, priority: TaskPriority = TaskPriority.NORMAL): Pair<Task, ReminderScheduleResult> = synchronized(NotificationHelper.reminderLock) {
+        val draft = Task(text = text.trim(), date = date, time = time?.takeIf { it.isNotBlank() }, priority = priority)
+        val task = draft.copy(id = dbHelper.insertTask(draft))
+        task to NotificationHelper.scheduleReminder(context, task)
     }
 
-    fun getTodayTasks(todayDate: String): List<Task> {
-        return dbHelper.getTasksForDate(todayDate)
-    }
-
-    fun getHistoryTasks(currentDate: String): List<Task> {
-        return dbHelper.getHistoryTasks(currentDate)
-    }
-
-    fun addTask(text: String, date: String, time: String?): Pair<Task, ReminderScheduleResult> {
-        val newTask = Task(
-            text = text.trim(),
-            date = date,
-            time = if (time.isNullOrBlank()) null else time,
-            isCompleted = false
-        )
-        val insertedId = dbHelper.insertTask(newTask)
-        val createdTask = newTask.copy(id = insertedId)
-
-        var reminderResult = ReminderScheduleResult.NO_TIME
-        if (createdTask.time != null) {
-            reminderResult = NotificationHelper.scheduleReminder(context, createdTask)
-        }
-
-        return Pair(createdTask, reminderResult)
-    }
-
-    fun updateTask(task: Task): Pair<Boolean, ReminderScheduleResult> {
-        val rows = dbHelper.updateTask(task)
-        val success = rows > 0
-
-        NotificationHelper.cancelReminder(context, task.id)
-
-        var reminderResult = ReminderScheduleResult.NO_TIME
-        if (success && !task.isCompleted && task.time != null) {
-            reminderResult = NotificationHelper.scheduleReminder(context, task)
-        }
-
-        return Pair(success, reminderResult)
-    }
-
-    fun toggleTaskCompletion(task: Task): Boolean {
-        val newStatus = !task.isCompleted
-        val rows = dbHelper.setTaskCompleted(task.id, newStatus)
-        val success = rows > 0
-
+    fun updateTask(task: Task): Pair<Boolean, ReminderScheduleResult> = synchronized(NotificationHelper.reminderLock) {
+        val current = dbHelper.getTaskById(task.id) ?: return@synchronized false to ReminderScheduleResult.NO_TIME
+        // Editing text/time/priority must not undo a notification action performed meanwhile.
+        val edited = task.copy(isCompleted = current.isCompleted)
+        val success = dbHelper.updateTask(edited) > 0
         if (success) {
-            if (newStatus) {
-                // Bajarildi deb belgilansa, eslatmani bekor qilamiz
-                NotificationHelper.cancelReminder(context, task.id)
-            } else {
-                // Qayta faol holatga keltirilsa va vaqti bo'lsa, eslatmani qayta tekshiramiz
-                if (task.time != null && task.date >= DateUtils.getTodayDate()) {
-                    NotificationHelper.scheduleReminder(context, task.copy(isCompleted = false))
-                }
-            }
+            NotificationHelper.cancelReminder(context, task.id)
+            true to NotificationHelper.scheduleReminder(context, edited)
+        } else false to ReminderScheduleResult.NO_TIME
+    }
+
+    fun toggleTaskCompletion(task: Task): Boolean = synchronized(NotificationHelper.reminderLock) {
+        // Read current storage, not a potentially stale card captured before another action.
+        val current = dbHelper.getTaskById(task.id) ?: return@synchronized false
+        val updated = current.copy(isCompleted = !current.isCompleted)
+        val success = dbHelper.setTaskCompleted(task.id, updated.isCompleted) > 0
+        if (success) {
+            NotificationHelper.cancelReminder(context, task.id)
+            if (!updated.isCompleted) NotificationHelper.scheduleReminder(context, updated)
         }
-        return success
+        success
     }
 
-    fun deleteTask(taskId: Long): Boolean {
-        NotificationHelper.cancelReminder(context, taskId)
-        val rows = dbHelper.deleteTask(taskId)
-        return rows > 0
+    fun deleteTask(taskId: Long): Boolean = synchronized(NotificationHelper.reminderLock) {
+        val success = dbHelper.deleteTask(taskId) > 0
+        if (success) NotificationHelper.cancelReminder(context, taskId)
+        success
     }
 
-    fun reAddHistoryTaskToToday(originalTask: Task, newTime: String?): Pair<Task, ReminderScheduleResult> {
-        val today = DateUtils.getTodayDate()
-        // Eski yozuv tarixda saqlanadi, bugun uchun yangi bajarilmagan nusxa yaratiladi
-        return addTask(
-            text = originalTask.text,
-            date = today,
-            time = newTime
-        )
-    }
+    fun reAddHistoryTaskToToday(originalTask: Task, newTime: String?, priority: TaskPriority = originalTask.priority) =
+        addTask(originalTask.text, DateUtils.getTodayDate(), newTime, priority)
 }

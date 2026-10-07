@@ -6,17 +6,19 @@ import java.util.Date
 import java.util.Locale
 
 object DateUtils {
-    private val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-    private val TIME_FORMAT = SimpleDateFormat("HH:mm", Locale.US)
+    // Create formatters per call: SimpleDateFormat is not thread-safe and caches a timezone.
+    private fun dateFormat() = SimpleDateFormat("yyyy-MM-dd", Locale.US).apply {
+        isLenient = false
+    }
 
     fun getTodayDate(): String {
-        return DATE_FORMAT.format(Date())
+        return dateFormat().format(Date())
     }
 
     fun getYesterdayDate(): String {
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, -1)
-        return DATE_FORMAT.format(calendar.time)
+        return dateFormat().format(calendar.time)
     }
 
     fun formatUzbekDateHeader(dateStr: String): String {
@@ -24,7 +26,8 @@ object DateUtils {
         val yesterday = getYesterdayDate()
 
         return try {
-            val date = DATE_FORMAT.parse(dateStr) ?: return dateStr
+            if (!dateStr.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))) return dateStr
+            val date = dateFormat().parse(dateStr) ?: return dateStr
             val cal = Calendar.getInstance().apply { time = date }
             val day = cal.get(Calendar.DAY_OF_MONTH)
             val monthIndex = cal.get(Calendar.MONTH)
@@ -63,8 +66,13 @@ object DateUtils {
      * Belgilangan sana va vaqtdan 5 daqiqa oldingi vaqtni millisekundlarda hisoblash.
      */
     fun calculateReminderTimeMillis(dateStr: String, timeStr: String): Long? {
+        if (!dateStr.matches(Regex("\\d{4}-\\d{2}-\\d{2}")) ||
+            !timeStr.matches(Regex("\\d{2}:\\d{2}"))
+        ) return null
         return try {
-            val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US)
+            val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).apply {
+                isLenient = false
+            }
             val date = dateTimeFormat.parse("$dateStr $timeStr") ?: return null
             val calendar = Calendar.getInstance().apply {
                 time = date

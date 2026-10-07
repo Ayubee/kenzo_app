@@ -1,0 +1,29 @@
+<resources>
+    <color name="splash_background">#1E1B18</color>
+    <color name="kenzo_terracotta">#D47A57</color>
+    <color name="kenzo_surface_dark">#2A2521</color>
+    <color name="kenzo_text_dark">#F4EDE4</color>
+
+    <style name="Theme.KunlikVazifalar" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/splash_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:colorAccent">@color/kenzo_terracotta</item>
+        <item name="android:colorPrimary">@color/kenzo_terracotta</item>
+        <item name="android:timePickerDialogTheme">@style/Theme.Kenzo.TimePicker</item>
+    </style>
+
+    <style name="Theme.Kenzo.TimePicker" parent="android:Theme.Material.Dialog">
+        <item name="android:colorAccent">@color/kenzo_terracotta</item>
+        <item name="android:colorPrimary">@color/kenzo_terracotta</item>
+        <item name="android:textColorPrimary">@color/kenzo_text_dark</item>
+        <item name="android:windowBackground">@color/kenzo_surface_dark</item>
+        <item name="android:textColorHighlight">#4C2719</item>
+    </style>
+
+    <style name="Theme.Kenzo.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_kenzo_splash</item>
+        <item name="postSplashScreenTheme">@style/Theme.KunlikVazifalar</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

@@ -4,10 +4,12 @@ import com.example.kunlikvazifalar.util.DateUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.TimeZone
 
 class DateUtilsTest {
 
@@ -58,5 +60,44 @@ class DateUtilsTest {
         assertEquals("09:05", DateUtils.formatTime24(9, 5))
         assertEquals("14:30", DateUtils.formatTime24(14, 30))
         assertEquals("00:00", DateUtils.formatTime24(0, 0))
+    }
+
+    @Test
+    fun invalidDateOrTimeDoesNotSilentlyScheduleAnotherDay() {
+        assertNull(DateUtils.calculateReminderTimeMillis("2026-02-29", "09:00"))
+        assertNull(DateUtils.calculateReminderTimeMillis("2026-10-07", "24:00"))
+        assertNull(DateUtils.calculateReminderTimeMillis("2026-10-07", "12:60"))
+        assertNull(DateUtils.calculateReminderTimeMillis("2026-10-07junk", "09:00"))
+        assertNull(DateUtils.calculateReminderTimeMillis("2026-10-07", "09:00junk"))
+        assertNotNull(DateUtils.calculateReminderTimeMillis("2028-02-29", "09:00"))
+    }
+
+    @Test
+    fun midnightReminderFallsOnPreviousDayInCurrentTimezone() {
+        val previousZone = TimeZone.getDefault()
+        try {
+            TimeZone.setDefault(TimeZone.getTimeZone("Asia/Tashkent"))
+            val format = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US)
+            assertEquals(
+                format.parse("2026-10-06 23:58")!!.time,
+                DateUtils.calculateReminderTimeMillis("2026-10-07", "00:03")
+            )
+        } finally {
+            TimeZone.setDefault(previousZone)
+        }
+    }
+
+    @Test
+    fun changingTimezoneChangesReminderInstant() {
+        val previousZone = TimeZone.getDefault()
+        try {
+            TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+            val utc = DateUtils.calculateReminderTimeMillis("2026-10-07", "09:00")!!
+            TimeZone.setDefault(TimeZone.getTimeZone("Asia/Tashkent"))
+            val tashkent = DateUtils.calculateReminderTimeMillis("2026-10-07", "09:00")!!
+            assertEquals(5 * 60 * 60 * 1000L, utc - tashkent)
+        } finally {
+            TimeZone.setDefault(previousZone)
+        }
     }
 }

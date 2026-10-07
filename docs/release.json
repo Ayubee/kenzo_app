@@ -1,0 +1,13 @@
+﻿{
+    "file":  "kenzo-app-1.1.0.apk",
+    "versionName":  "1.1.0",
+    "versionCode":  2,
+    "applicationId":  "com.example.kunlikvazifalar",
+    "applicationLabel":  "Kenzo App",
+    "bytes":  12362291,
+    "sha256":  "213cf7671081f30474a5911696e7e5a7b0b8a6c46f3a583b1d9e051f04e0e5ae",
+    "releaseCertificateSha256":  "5c94c0f4be44cef19750885333c81791dead3f23681e46740d91455e33d16a0c",
+    "matchesInitialReleaseCertificate":  true,
+    "debuggable":  false,
+    "verifiedOn":  "2026-10-07"
+}

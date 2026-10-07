@@ -66,7 +66,7 @@ Release APK'ni debug ustiga o'rnatmang: signing key farqi bo'lishi mumkin.
 
 ## Tekshirish va release
 
-2026-10-07 kuni amalda tasdiqlangan natijalar:
+2026-10-07 kuni dastlabki 1.0.0 build uchun tasdiqlangan natijalar:
 
 - Avval emulator va AVD yo'q edi. Bitta `Kenzo_API_36` yaratildi va ochildi;
   `adb devices -l` faqat `emulator-5554` qurilmasini ko'rsatdi.
@@ -82,17 +82,16 @@ Release APK'ni debug ustiga o'rnatmang: signing key farqi bo'lishi mumkin.
 - Onboarding va bugungi vazifalar ekranlari screenshot orqali ko'rildi.
   Tekshiruv paytida Android crash logi bo'sh edi.
 
-Vazifa tahrirlash/o'chirish/bajarish, tarix, sozlamalar, vaqtli eslatmaning kelishi
-va to'liq dizayn tekshiruvi bu sessiyada bajarilmadi. Yakuniy release APK yaratilmadi.
-Dalillar `.local/android/before-update-*`, `after-update-*` va `current.png` ichida.
+Keyingi 1.1.0 yangilanishida vazifa qo'shish/tahrirlash/o'chirish/bajarish,
+tarixdan bugunga nusxalash, mavzular, klaviaturali dizayn va ruxsatlar berilmagan
+holatlar tekshirildi. Haqiqiy vaqtli bildirishnoma keldi va vazifa bajarilganda
+bekor bo'ldi. 11 unit va 7 emulator instrumentation testi o'tdi. 1.0.0 dan
+1.1.0 debug yangilanishida username va baza saqlandi; dastlabki xeshlar teng edi.
 
-Emulatorda quyidagilarni amalda tekshiring:
-
-- Username kiritish va qayta ochilganda saqlanishi.
-- Vazifa qo'shish, tahrirlash, bajarilgan deb belgilash va o'chirish.
-- Bugungi vazifalar, tarix, sozlamalar va klaviatura ochilgandagi dizayn.
-- Username va vazifa mavjud paytda skriptni qayta bajarib, ikkalasi saqlanishi.
-- Vaqtli vazifa eslatmasi va bildirishnoma ruxsatining haqiqiy ishlashi.
+Yakuniy [kenzo-app-1.1.0.apk](kenzo-app-1.1.0.apk) yaratildi: versionCode 2,
+o'sha package ID va avvalgi release imzosi. Release debug ustiga o'rnatilmadi;
+runtime sinovlar shu manbadan yig'ilgan debug build'da bajarildi. To'liq dalillar,
+haqiqiy skrinshotlar va tekshirilmagan holatlar: [tekshiruv hisoboti](docs/VERIFICATION.md).
 
 Tekshirilmagan bandlarni o'tgan deb belgilamang. Yakuniy release APK faqat dizayn
 va asosiy funksiyalar amalda tekshirilgandan keyin tayyorlanadi. Kundalik skript

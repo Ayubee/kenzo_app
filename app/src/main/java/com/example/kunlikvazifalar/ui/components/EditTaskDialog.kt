@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -19,25 +21,27 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.kunlikvazifalar.data.model.Task
+import com.example.kunlikvazifalar.data.model.TaskPriority
 
 @Composable
 fun EditTaskDialog(
     task: Task,
     onDismiss: () -> Unit,
-    onConfirm: (text: String, time: String?) -> Unit,
+    onConfirm: (text: String, time: String?, priority: TaskPriority) -> Unit,
     isSaving: Boolean = false
 ) {
     val context = LocalContext.current
-    var taskText by remember { mutableStateOf(task.text) }
-    var selectedTime by remember { mutableStateOf(task.time) }
-    var hasError by remember { mutableStateOf(false) }
+    var taskText by rememberSaveable(task.id) { mutableStateOf(task.text) }
+    var selectedTime by rememberSaveable(task.id) { mutableStateOf(task.time) }
+    var hasError by rememberSaveable(task.id) { mutableStateOf(false) }
+    var priority by rememberSaveable(task.id) { mutableStateOf(task.priority) }
 
     AlertDialog(
         onDismissRequest = {
@@ -47,7 +51,7 @@ fun EditTaskDialog(
             Text(text = "Vazifani tahrirlash", style = MaterialTheme.typography.titleLarge)
         },
         text = {
-            Column(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
                 OutlinedTextField(
                     value = taskText,
                     onValueChange = {
@@ -56,6 +60,7 @@ fun EditTaskDialog(
                     },
                     label = { Text("Vazifa matni *") },
                     isError = hasError,
+                    enabled = !isSaving,
                     supportingText = if (hasError) {
                         { Text("Vazifa matni kiritilishi shart", color = MaterialTheme.colorScheme.error) }
                     } else null,
@@ -65,6 +70,8 @@ fun EditTaskDialog(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
+                PrioritySelector(priority, !isSaving) { priority = it }
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
                     text = "Vaqt (ixtiyoriy):",
@@ -74,11 +81,7 @@ fun EditTaskDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = if (selectedTime != null) "🕒 $selectedTime" else "Vaqt belgilanmagan",
                         style = MaterialTheme.typography.bodyLarge,
@@ -92,14 +95,15 @@ fun EditTaskDialog(
                                     selectedTime = time
                                 }
                             },
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(8.dp),
+                            enabled = !isSaving
                         ) {
                             Text(if (selectedTime == null) "Vaqt tanlash" else "O‘zgartirish")
                         }
 
                         if (selectedTime != null) {
                             Spacer(modifier = Modifier.width(6.dp))
-                            TextButton(onClick = { selectedTime = null }) {
+                            TextButton(onClick = { selectedTime = null }, enabled = !isSaving) {
                                 Text("Tozalash", color = MaterialTheme.colorScheme.error)
                             }
                         }
@@ -114,7 +118,7 @@ fun EditTaskDialog(
                     if (trimmed.isBlank()) {
                         hasError = true
                     } else if (!isSaving) {
-                        onConfirm(trimmed, selectedTime)
+                        onConfirm(trimmed, selectedTime, priority)
                     }
                 },
                 enabled = !isSaving

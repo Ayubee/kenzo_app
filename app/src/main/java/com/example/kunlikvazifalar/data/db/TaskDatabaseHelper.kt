@@ -6,12 +6,13 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.example.kunlikvazifalar.data.model.Task
+import com.example.kunlikvazifalar.data.model.TaskPriority
 
 class TaskDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {
         private const val DATABASE_NAME = "kunlik_vazifalar.db"
-        private const val DATABASE_VERSION = 1
+        private const val DATABASE_VERSION = 2
 
         private const val TABLE_TASKS = "tasks"
         private const val COLUMN_ID = "id"
@@ -20,6 +21,7 @@ class TaskDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
         private const val COLUMN_TIME = "time"
         private const val COLUMN_IS_COMPLETED = "is_completed"
         private const val COLUMN_CREATED_AT = "created_at"
+        private const val COLUMN_PRIORITY = "priority"
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -30,14 +32,27 @@ class TaskDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
                 $COLUMN_DATE TEXT NOT NULL,
                 $COLUMN_TIME TEXT,
                 $COLUMN_IS_COMPLETED INTEGER NOT NULL DEFAULT 0,
-                $COLUMN_CREATED_AT INTEGER NOT NULL
+                $COLUMN_CREATED_AT INTEGER NOT NULL,
+                $COLUMN_PRIORITY INTEGER NOT NULL DEFAULT 1 CHECK(priority BETWEEN 0 AND 2)
             )
         """.trimIndent()
         db.execSQL(createTableSql)
+        createReminderLedger(db)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // Kelgusidagi migratsiyalar uchun
+        if (oldVersion < 2) {
+            db.execSQL("ALTER TABLE tasks ADD COLUMN priority INTEGER NOT NULL DEFAULT 1 CHECK(priority BETWEEN 0 AND 2)")
+            createReminderLedger(db)
+        }
+    }
+
+    private fun createReminderLedger(db: SQLiteDatabase) {
+        db.execSQL("""CREATE TABLE IF NOT EXISTS reminder_deliveries (
+            task_id INTEGER NOT NULL, task_date TEXT NOT NULL, task_time TEXT NOT NULL,
+            kind TEXT NOT NULL, sent_at INTEGER NOT NULL,
+            PRIMARY KEY(task_id, task_date, task_time, kind)
+        )""")
     }
 
     fun insertTask(task: Task): Long {
@@ -48,8 +63,9 @@ class TaskDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
             put(COLUMN_TIME, task.time)
             put(COLUMN_IS_COMPLETED, if (task.isCompleted) 1 else 0)
             put(COLUMN_CREATED_AT, task.createdAt)
+            put(COLUMN_PRIORITY, task.priority.value)
         }
-        return db.insert(TABLE_TASKS, null, values)
+        return db.insertOrThrow(TABLE_TASKS, null, values)
     }
 
     fun updateTask(task: Task): Int {
@@ -59,6 +75,7 @@ class TaskDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
             put(COLUMN_DATE, task.date)
             put(COLUMN_TIME, task.time)
             put(COLUMN_IS_COMPLETED, if (task.isCompleted) 1 else 0)
+            put(COLUMN_PRIORITY, task.priority.value)
         }
         return db.update(TABLE_TASKS, values, "$COLUMN_ID = ?", arrayOf(task.id.toString()))
     }
@@ -73,7 +90,13 @@ class TaskDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
 
     fun deleteTask(id: Long): Int {
         val db = writableDatabase
-        return db.delete(TABLE_TASKS, "$COLUMN_ID = ?", arrayOf(id.toString()))
+        db.beginTransaction()
+        return try {
+            val rows = db.delete(TABLE_TASKS, "$COLUMN_ID = ?", arrayOf(id.toString()))
+            db.delete("reminder_deliveries", "task_id = ?", arrayOf(id.toString()))
+            db.setTransactionSuccessful()
+            rows
+        } finally { db.endTransaction() }
     }
 
     fun getTaskById(id: Long): Task? {
@@ -102,7 +125,7 @@ class TaskDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
     fun getTasksForDate(date: String): List<Task> {
         val db = readableDatabase
         val tasks = mutableListOf<Task>()
-        val orderBy = "CASE WHEN $COLUMN_TIME IS NULL OR $COLUMN_TIME = '' THEN 1 ELSE 0 END ASC, $COLUMN_TIME ASC, $COLUMN_ID ASC"
+        val orderBy = "$COLUMN_PRIORITY DESC, CASE WHEN $COLUMN_TIME IS NULL OR $COLUMN_TIME = '' THEN 1 ELSE 0 END ASC, $COLUMN_TIME ASC, $COLUMN_ID ASC"
         val cursor = db.query(
             TABLE_TASKS,
             null,
@@ -127,7 +150,7 @@ class TaskDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
     fun getHistoryTasks(currentDate: String): List<Task> {
         val db = readableDatabase
         val tasks = mutableListOf<Task>()
-        val orderBy = "$COLUMN_DATE DESC, CASE WHEN $COLUMN_TIME IS NULL OR $COLUMN_TIME = '' THEN 1 ELSE 0 END ASC, $COLUMN_TIME ASC, $COLUMN_ID ASC"
+        val orderBy = "$COLUMN_DATE DESC, $COLUMN_PRIORITY DESC, CASE WHEN $COLUMN_TIME IS NULL OR $COLUMN_TIME = '' THEN 1 ELSE 0 END ASC, $COLUMN_TIME ASC, $COLUMN_ID ASC"
         val cursor = db.query(
             TABLE_TASKS,
             null,
@@ -183,7 +206,27 @@ class TaskDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_
             date = date,
             time = if (time.isNullOrBlank()) null else time,
             isCompleted = isCompleted,
-            createdAt = createdAt
+            createdAt = createdAt,
+            priority = TaskPriority.fromValue(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_PRIORITY)))
         )
+    }
+
+    fun getDeliveredKinds(task: Task): Set<String> = readableDatabase.query(
+        "reminder_deliveries", arrayOf("kind"), "task_id = ? AND task_date = ? AND task_time = ?",
+        arrayOf(task.id.toString(), task.date, task.time.orEmpty()), null, null, null
+    ).use { cursor -> buildSet { while (cursor.moveToNext()) add(cursor.getString(0)) } }
+
+    /** Called under the reminder lock. The unique key survives process death/reboot. */
+    fun claimDelivery(task: Task, kind: String, now: Long): Boolean {
+        val values = ContentValues().apply {
+            put("task_id", task.id); put("task_date", task.date); put("task_time", task.time)
+            put("kind", kind); put("sent_at", now)
+        }
+        return writableDatabase.insertWithOnConflict("reminder_deliveries", null, values, SQLiteDatabase.CONFLICT_IGNORE) != -1L
+    }
+
+    fun releaseDelivery(task: Task, kind: String) {
+        writableDatabase.delete("reminder_deliveries", "task_id = ? AND task_date = ? AND task_time = ? AND kind = ?",
+            arrayOf(task.id.toString(), task.date, task.time.orEmpty(), kind))
     }
 }

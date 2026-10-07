@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -18,23 +20,25 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.kunlikvazifalar.data.model.Task
+import com.example.kunlikvazifalar.data.model.TaskPriority
 
 @Composable
 fun ReAddTaskDialog(
     task: Task,
     onDismiss: () -> Unit,
-    onConfirm: (Task, String?) -> Unit,
+    onConfirm: (Task, String?, TaskPriority) -> Unit,
     isSaving: Boolean = false
 ) {
     val context = LocalContext.current
-    var selectedTime by remember { mutableStateOf<String?>(task.time) }
+    var selectedTime by rememberSaveable(task.id) { mutableStateOf<String?>(task.time) }
+    var priority by rememberSaveable(task.id) { mutableStateOf(task.priority) }
 
     AlertDialog(
         onDismissRequest = {
@@ -44,7 +48,7 @@ fun ReAddTaskDialog(
             Text(text = "Bugunga qayta qo‘shish", style = MaterialTheme.typography.titleLarge)
         },
         text = {
-            Column(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
                 Text(
                     text = "Vazifa:",
                     style = MaterialTheme.typography.labelMedium,
@@ -58,6 +62,8 @@ fun ReAddTaskDialog(
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
+                PrioritySelector(priority, !isSaving) { priority = it }
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
                     text = "Bugungi vaqt (ixtiyoriy):",
@@ -67,11 +73,7 @@ fun ReAddTaskDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = if (selectedTime != null) "🕒 $selectedTime" else "Vaqt belgilanmagan",
                         style = MaterialTheme.typography.bodyLarge,
@@ -85,14 +87,15 @@ fun ReAddTaskDialog(
                                     selectedTime = time
                                 }
                             },
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(8.dp),
+                            enabled = !isSaving
                         ) {
                             Text(if (selectedTime == null) "Vaqt tanlash" else "O‘zgartirish")
                         }
 
                         if (selectedTime != null) {
                             Spacer(modifier = Modifier.width(6.dp))
-                            TextButton(onClick = { selectedTime = null }) {
+                            TextButton(onClick = { selectedTime = null }, enabled = !isSaving) {
                                 Text("Tozalash", color = MaterialTheme.colorScheme.error)
                             }
                         }
@@ -104,7 +107,7 @@ fun ReAddTaskDialog(
             Button(
                 onClick = {
                     if (!isSaving) {
-                        onConfirm(task, selectedTime)
+                        onConfirm(task, selectedTime, priority)
                     }
                 },
                 enabled = !isSaving

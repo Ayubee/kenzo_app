@@ -4,7 +4,6 @@ import java.io.FileInputStream
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.compose.compiler)
-  alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -23,7 +22,7 @@ android {
     val keystoreProperties = Properties()
     val hasKeystore = keystorePropertiesFile.exists()
     if (hasKeystore) {
-                keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+        FileInputStream(keystorePropertiesFile).use { keystoreProperties.load(it) }
     }
 
     signingConfigs {
@@ -53,7 +52,7 @@ android {
     buildFeatures {
       compose = true
       aidl = false
-      buildConfig = false
+      buildConfig = true
       shaders = false
     }
 
@@ -75,6 +74,7 @@ dependencies {
 
   // Core Android dependencies
   implementation(libs.androidx.core.ktx)
+  implementation("androidx.core:core-splashscreen:1.2.0")
   implementation(libs.androidx.lifecycle.runtime.ktx)
   implementation(libs.androidx.activity.compose)
 
@@ -104,8 +104,4 @@ dependencies {
   androidTestImplementation(libs.androidx.test.runner)
   androidTestImplementation(libs.androidx.test.espresso.core)
 
-  // Navigation
-  implementation(libs.androidx.navigation3.ui)
-  implementation(libs.androidx.navigation3.runtime)
-  implementation(libs.androidx.lifecycle.viewmodel.navigation3)
 }

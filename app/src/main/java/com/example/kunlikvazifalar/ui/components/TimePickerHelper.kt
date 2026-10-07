@@ -2,6 +2,7 @@ package com.example.kunlikvazifalar.ui.components
 
 import android.app.TimePickerDialog
 import android.content.Context
+import android.content.DialogInterface
 import java.util.Calendar
 
 object TimePickerHelper {
@@ -32,6 +33,11 @@ object TimePickerHelper {
             minute,
             true // 24 soatlik format
         )
+
+        // O'zbekcha matnlar: "OK" / "Cancel" o'rniga "Tanlash" / "Bekor qilish"
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Tanlash", dialog)
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Bekor qilish", dialog)
+
         dialog.show()
     }
 }

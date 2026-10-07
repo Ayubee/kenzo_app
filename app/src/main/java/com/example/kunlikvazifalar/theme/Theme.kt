@@ -12,35 +12,59 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = TealDark,
-    onPrimary = Color.Black,
-    primaryContainer = Color(0xFF134E4A),
-    onPrimaryContainer = Color(0xFF99F6E4),
-    background = SlateBackgroundDark,
-    surface = SlateSurfaceDark,
-    onBackground = SlateTextPrimaryDark,
-    onSurface = SlateTextPrimaryDark,
-    surfaceVariant = Color(0xFF334155),
-    onSurfaceVariant = SlateTextSecondaryDark
+    primary = WarmDarkTerracottaAccent,
+    onPrimary = Color(0xFF1E1B18),
+    primaryContainer = WarmDarkTerracottaContainer,
+    onPrimaryContainer = WarmDarkOnTerracottaContainer,
+    secondary = WarmDarkTerracottaAccent,
+    onSecondary = Color(0xFF1E1B18),
+    secondaryContainer = Color(0xFF38322C),
+    onSecondaryContainer = Color(0xFFEDE4D8),
+    tertiaryContainer = Color(0xFF2C382E),
+    onTertiaryContainer = CalmGreenCheckDark,
+    background = WarmDarkBg,
+    surface = WarmDarkSurface,
+    onBackground = WarmDarkText,
+    onSurface = WarmDarkText,
+    surfaceVariant = Color(0xFF352F29),
+    onSurfaceVariant = WarmDarkMutedText,
+    outline = Color(0xFF6E6358),
+    outlineVariant = WarmDarkBorder,
+    error = Color(0xFFFF8B91),
+    onError = Color(0xFF4D2224),
+    errorContainer = Color(0xFF502224),
+    onErrorContainer = Color(0xFFFF8B91)
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = TealPrimary,
+    primary = WarmTerracottaAccentLight,
     onPrimary = Color.White,
-    primaryContainer = TealContainer,
-    onPrimaryContainer = OnTealContainer,
-    background = SlateBackgroundLight,
-    surface = SlateSurfaceLight,
-    onBackground = SlateTextPrimaryLight,
-    onSurface = SlateTextPrimaryLight,
-    surfaceVariant = Color(0xFFF1F5F9),
-    onSurfaceVariant = SlateTextSecondaryLight
+    primaryContainer = WarmTerracottaContainerLight,
+    onPrimaryContainer = WarmOnTerracottaContainerLight,
+    secondary = WarmTerracottaAccentLight,
+    onSecondary = Color.White,
+    secondaryContainer = Color(0xFFEDE4D8),
+    onSecondaryContainer = WarmInkTextLight,
+    tertiaryContainer = Color(0xFFE4EDE5),
+    onTertiaryContainer = CalmGreenCheckLight,
+    background = WarmBeigeBgLight,
+    surface = WarmCreamSurfaceLight,
+    onBackground = WarmInkTextLight,
+    onSurface = WarmInkTextLight,
+    surfaceVariant = Color(0xFFEFE6DB),
+    onSurfaceVariant = WarmMutedTextLight,
+    outline = Color(0xFFC8BCB0),
+    outlineVariant = WarmBorderLight,
+    error = PriorityHighTextLight,
+    onError = Color.White,
+    errorContainer = PriorityHighBgLight,
+    onErrorContainer = PriorityHighTextLight
 )
 
 @Composable
 fun KunlikVazifalarTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val colorScheme = when {
@@ -51,10 +75,5 @@ fun KunlikVazifalarTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
-
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)
 }
