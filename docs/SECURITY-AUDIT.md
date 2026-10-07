@@ -10,6 +10,8 @@ No advice to disable Play Protect, hide detections or change the package ID was 
 
 Reviewed the current source, resolved debug runtime dependencies, merged debug manifest, original `KunlikVazifalar-1.0.0.apk`, existing `kenzo-app-1.1.0.apk` and the new local debug APK. **No new release APK was built.**
 
+On resume, the workspace already had version 1.2.0/code 3 and `kenzo-app-1.2.0.apk`. Kept both unchanged. Independently verified that existing APK's signature, package, label and manifest permissions; its release certificate matches the earlier releases. The detailed DEX inspection below covered 1.0.0/1.1.0 and the earlier debug, not a new reverse-engineering pass over 1.2.0. Current dependencies are unchanged; only the app version differs in the Gradle configuration.
+
 | Area | Actual result |
 | --- | --- |
 | Permissions | Current source and 1.1.0 release use `POST_NOTIFICATIONS`, `RECEIVE_BOOT_COMPLETED`, `SCHEDULE_EXACT_ALARM`, `VIBRATE`; AndroidX adds a signature-level private receiver permission. No Internet, storage, location, contacts, microphone, camera or package-install permission found. Original 1.0.0 also had `USE_EXACT_ALARM`; it was already removed in 1.1.0. |
@@ -36,5 +38,6 @@ Both existing releases passed local `apksigner verify`; their release certificat
 | --- | --- |
 | `KunlikVazifalar-1.0.0.apk` | `33329a2fc98f5f1626615bf5f41820961e617692174060a012f34e3933af19b6` |
 | `kenzo-app-1.1.0.apk` | `213cf7671081f30474a5911696e7e5a7b0b8a6c46f3a583b1d9e051f04e0e5ae` |
+| Existing `kenzo-app-1.2.0.apk` (predates current fixes) | `1e09d0809482aeff13f14d233b3c458dcc9c975bae67b5d34692640ee5e20a87` |
 
 No external malware verdict is claimed. A physical device's Play Protect or manufacturer-specific behavior was not reproduced by the emulator. See [current development verification](UNRELEASED-VERIFICATION.md) for actual permission and reminder checks.

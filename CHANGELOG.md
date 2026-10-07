@@ -16,37 +16,42 @@ Har bir yangi chiqariladigan APK uchun `app/build.gradle.kts` faylida:
 
 ## [Unreleased]
 
-### "Iliq minimal" (Warm Minimal - 4-variant) dizayn yangilanishi:
-- **Ranglar va uslub**:
+- Klaviatura ochilganda qo‘shish, tahrirlash, qayta qo‘shish va sozlamalar dialoglari IME joyini hisobga oladi; asosiy amallar klaviatura ustida qoladi.
+- Material 3 dialog va konteyner ranglari mavjud iliq light/dark mavzuga moslashtirildi; standart binafsha fon olib tashlandi.
+- Pastdan ochiladigan vaqt tanlagichi aylantiriladi; tugmalar katta shriftga mos balandlik oladi.
+- Har bir kartochkada prioritetga mos qizg‘ish chegara, HIGH uchun sokin fon; bajarilganda qizil urg‘u kamayadi. Kichik ro‘yxatda ham progress chizig‘i, nol holatidagi aniq hisob va ixcham rag‘bat matni saqlanadi.
+- Vaqt tanlagichini ochishda matn fokusini bo‘shatish keraksiz klaviatura qaytishini kamaytiradi.
+- Joriy debug tekshiruvlari va xavfsizlik auditi hujjatlashtiriladi. Bu davom ettirishda release yig‘ilmadi, diskda avvaldan bor 1.2.0/3 va APK saqlandi.
+
+## [1.2.0] - 2026-10-07
+
+### Qo‘shildi va yangilandi:
+- **3-variant: Pastdan chiquvchi yangi vaqt tanlagich (ModalBottomSheet)**:
+  - Material 3 `ModalBottomSheet`, yuqori burchaklari 24dp yumaloq, drag handle bilan.
+  - Sarlavha: "Vaqtni tanlang" (chapga, qalin).
+  - Katta vaqt ko'rsatkichi: 60sp ExtraBold, 24 soatlik (HH:mm) format, yumaloq konteyner ichida.
+  - Vaqt o'zgarganda 200 ms yengil animatsiya (tizim va ilova animatsiya sozlamalariga mos).
+  - 2x2 tezkor kumulyativ tugmalar: "+15 daqiqa", "+30 daqiqa", "+1 soat", "Boshqa vaqt" (qo'shimcha picker).
+  - 24 soat doirasida aylanuvchi kumulyativ vaqt hisoblash (23:50 + 15 daq = 00:05).
+  - To'liq kenglikdagi oltin/sariq (#F2C044) "Saqlash" tugmasi, to'q qalin matn (~52dp).
+  - To'liq kenglikdagi nozik chegarali "Bekor qilish" tugmasi.
+  - Vaqt ixtiyoriy bo'lgani uchun "Vaqtsiz qoldirish" imkoniyati to'liq saqlandi.
+  - Alohida qayta ishlatiluvchi `KenzoTimePickerBottomSheet` komponenti.
+  - Light va Dark mavzularini to'liq qo'llab-quvvatlaydi.
+- **4-variant: "Iliq minimal" vizual dizayni**:
   - Asosiy fon: iliq bej (`#F5EDE2` yorug' / `#1E1B18` qorong'i).
   - Kartochkalar: och krem (`#FFFAF3` yorug' / `#2A2521` qorong'i).
   - Asosiy matn: to'q kulrang (`#282522` yorug' / `#F4EDE4` qorong'i).
   - Asosiy UI aksenti: sokin terrakota (`#B85E3C` yorug' / `#D47A57` qorong'i).
-  - Nozik chegaralar (`outlineVariant`), 18.dp yumaloq burchaklar va yengil soyalar.
-  - Kenzo'ning rasmiy sariq "K + galochka" logosi o'zgartirilmasdan saqlandi.
-- **Asosiy ekran va progress**:
-  - "[Username], xush kelibsiz!" sarlavhasi va ixcham Kenzo App sarlavhasi.
-  - "Bugun X ta vazifadan Y tasi bajarildi" va "Y / X bajarildi" real hisobli progress.
-  - Vazifalar soni oshganda ham buzilmaydigan ixcham progress nuqtalari.
-  - Bitta ustunda vazifa kartochkalari, terrakota rangli yumaloq "+" tugmasi (FAB).
-  - Pastda "Bugun" va "Tarix" kapsula ko'rinishidagi navigatsiya.
-- **Kartochkalar va prioritet**:
-  - Galochka: sokin yashil kvadrat (`#4E7D55` yorug' / `#65996C` qorong'i), oq belgi va 200 ms silliq animatsiya.
-  - Bajarilgan vazifa matni ustidan chizilgan chiziq to'liq o'qiladigan darajada saqlangan.
-  - Prioritet belgilari: "Muhim emas" (neytral), "Muhim" (yengil qizg'ish/och pushti), "Juda muhim" (kuchliroq qizil nishon), terrakota amallardan aniq ajralib turadi.
-  - Soat belgili aniq vaqt indikatori va 3 nuqtali menyu.
-- **Vaqt tanlash va dialoglar**:
-  - Tizimning standart binafsha ranglari to'liq olib tashlandi; sarlavha, soat ko'rsatkichlari va tanlov terrakota rangiga moslandi.
-  - Inglizcha tugmalar o'rniga o'zbekcha "Tanlash" va "Bekor qilish" yozuvlari kiritildi.
-- **Dark Mode jufti**:
-  - Sof qora o'rniga chuqur iliq to'q fon (`#1E1B18`) va krem matn (`#F4EDE4`).
-  - Tizimga mos / Yorug' / Qorong'i mavzu sozlamasi va uning doimiy saqlanishi to'liq ishlaydi.
-- **Mavjud funksiyalar va xavfsizlik**:
-  - Foydalanuvchi ma'lumotlari ("Kenzo" profili va 7 ta vazifa) to'liq saqlandi.
-  - Release APK yaratilmadi va tarqatiladigan versiya (`1.1.0 / 2`) o'zgartirilmadi (faqat alohida so'rovdan keyin chiqariladi).
-- **Tekshiruvlar**:
-  - Barcha 13 ta unit testlar muvaffaqiyatli o'tdi (`.\gradlew.bat test`).
-  - `run-android.ps1` orqali `Kenzo_API_36` emulatorida tekshirildi; skrinshotlar olindi.
+  - Sokin yashil galochka (`#4E7D55` yorug' / `#65996C` qorong'i) 200 ms silliq animatsiya bilan.
+  - 3 darajali prioritet nishonlari ("Muhim emas", "Muhim", "Juda muhim").
+  - Haqiqiy progress: "Bugun X ta vazifadan Y tasi bajarildi" va "Y / X bajarildi", ixcham nuqtalar.
+  - Kenzo'ning rasmiy sariq "K + galochka" logosi saqlandi.
+- **Versiyalash va reliz**:
+  - `versionName = "1.2.0"`, `versionCode = 3`, interfeysda "1.2.0v".
+  - Rasmiy keystore bilan imzolangan `kenzo-app-1.2.0.apk` tayyorlandi (v2 sxemasi, sertifikat mosligi tekshirildi).
+  - Barcha unit testlar muvaffaqiyatli o'tdi (`.\gradlew.bat test`).
+  - Emulator'da Light/Dark rejimlari, kumulyativ tugmalar va saqlash to'liq tekshirildi.
 
 ## [1.1.0] - 2026-10-07
 

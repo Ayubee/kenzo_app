@@ -1,8 +1,8 @@
 <resources>
     <color name="splash_background">#F5EDE2</color>
     <color name="kenzo_terracotta">#B85E3C</color>
-    <color name="kenzo_surface_light">#FFFAF3</color>
-    <color name="kenzo_text_light">#282522</color>
+    <color name="kenzo_dialog_surface">#FFFAF3</color>
+    <color name="kenzo_dialog_text">#282522</color>
 
     <style name="Theme.KunlikVazifalar" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@color/splash_background</item>
@@ -15,8 +15,8 @@
     <style name="Theme.Kenzo.TimePicker" parent="android:Theme.Material.Light.Dialog">
         <item name="android:colorAccent">@color/kenzo_terracotta</item>
         <item name="android:colorPrimary">@color/kenzo_terracotta</item>
-        <item name="android:textColorPrimary">@color/kenzo_text_light</item>
-        <item name="android:windowBackground">@color/kenzo_surface_light</item>
+        <item name="android:textColorPrimary">@color/kenzo_dialog_text</item>
+        <item name="android:windowBackground">@color/kenzo_dialog_surface</item>
         <item name="android:textColorHighlight">#F0DDD4</item>
     </style>
 

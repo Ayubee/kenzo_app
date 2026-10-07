@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -70,7 +71,16 @@ fun TaskCard(
     val scheme = MaterialTheme.colorScheme
     val isDark = scheme.background.luminance() < 0.5f
 
-    val targetCardColor = scheme.surface
+    val targetCardColor = if (!task.isCompleted && task.priority == TaskPriority.HIGH) {
+        lerp(scheme.surface, if (isDark) PriorityHighBgDark else PriorityHighBgLight, 0.45f)
+    } else scheme.surface
+    val cardBorder = when {
+        task.isCompleted || task.priority == TaskPriority.LOW -> scheme.outlineVariant
+        task.priority == TaskPriority.HIGH -> lerp(scheme.outlineVariant,
+            if (isDark) PriorityHighTextDark else PriorityHighTextLight, 0.5f)
+        else -> lerp(scheme.outlineVariant,
+            if (isDark) PriorityNormalTextDark else PriorityNormalTextLight, 0.25f)
+    }
     val cardColor by animateColorAsState(
         targetValue = targetCardColor,
         animationSpec = tween(if (animationsEnabled) 200 else 0),
@@ -78,7 +88,9 @@ fun TaskCard(
     )
 
     // Prioritet ranglari (4. Iliq minimal talabiga binoan terrakotadan ajralib turadi)
-    val (priorityBg, priorityTextColor) = when (task.priority) {
+    val (priorityBg, priorityTextColor) = if (task.isCompleted) {
+        Pair(scheme.surfaceVariant, scheme.onSurfaceVariant)
+    } else when (task.priority) {
         TaskPriority.LOW -> if (isDark) Pair(PriorityLowBgDark, PriorityLowTextDark) else Pair(PriorityLowBgLight, PriorityLowTextLight)
         TaskPriority.NORMAL -> if (isDark) Pair(PriorityNormalBgDark, PriorityNormalTextDark) else Pair(PriorityNormalBgLight, PriorityNormalTextLight)
         TaskPriority.HIGH -> if (isDark) Pair(PriorityHighBgDark, PriorityHighTextDark) else Pair(PriorityHighBgLight, PriorityHighTextLight)
@@ -87,7 +99,7 @@ fun TaskCard(
     KenzoPanel(
         modifier = modifier.fillMaxWidth(),
         color = cardColor,
-        borderColor = scheme.outlineVariant
+        borderColor = cardBorder
     ) {
         Row(
             modifier = Modifier

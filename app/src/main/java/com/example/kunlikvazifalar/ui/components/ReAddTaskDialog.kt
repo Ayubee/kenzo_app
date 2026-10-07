@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import com.example.kunlikvazifalar.data.model.Task
 import com.example.kunlikvazifalar.data.model.TaskPriority
 
@@ -39,8 +41,28 @@ fun ReAddTaskDialog(
     val context = LocalContext.current
     var selectedTime by rememberSaveable(task.id) { mutableStateOf<String?>(task.time) }
     var priority by rememberSaveable(task.id) { mutableStateOf(task.priority) }
+    var showTimePickerSheet by rememberSaveable(task.id) { mutableStateOf(false) }
+
+    if (showTimePickerSheet) {
+        KenzoTimePickerBottomSheet(
+            initialTime = selectedTime,
+            onSave = { time ->
+                selectedTime = time
+                showTimePickerSheet = false
+            },
+            onCancel = {
+                showTimePickerSheet = false
+            },
+            onClear = {
+                selectedTime = null
+                showTimePickerSheet = false
+            }
+        )
+    }
 
     AlertDialog(
+        modifier = Modifier.imePadding(),
+        properties = DialogProperties(decorFitsSystemWindows = false),
         onDismissRequest = {
             if (!isSaving) onDismiss()
         },
@@ -83,9 +105,7 @@ fun ReAddTaskDialog(
                     Row {
                         OutlinedButton(
                             onClick = {
-                                TimePickerHelper.showTimePicker(context, selectedTime) { time ->
-                                    selectedTime = time
-                                }
+                                showTimePickerSheet = true
                             },
                             shape = RoundedCornerShape(8.dp),
                             enabled = !isSaving

@@ -93,9 +93,14 @@ o'sha package ID va avvalgi release imzosi. Release debug ustiga o'rnatilmadi;
 runtime sinovlar shu manbadan yig'ilgan debug build'da bajarildi. To'liq dalillar,
 haqiqiy skrinshotlar va tekshirilmagan holatlar: [tekshiruv hisoboti](docs/VERIFICATION.md).
 
-Tekshirilmagan bandlarni o'tgan deb belgilamang. Yakuniy release APK faqat dizayn
-va asosiy funksiyalar amalda tekshirilgandan keyin tayyorlanadi. Kundalik skript
-faqat debug build yaratadi.
+Keyingi davom ettirishda diskda 1.2.0/3 va `kenzo-app-1.2.0.apk` mavjud edi.
+Hozirgi tuzatishlar `Unreleased` ostida; o‘sha APK qayta yig‘ilmadi.
+[Joriy tekshiruvlar](docs/UNRELEASED-VERIFICATION.md) va
+[xavfsizlik auditi](docs/SECURITY-AUDIT.md) tarixiy 1.1.0 hisobotidan alohida.
+
+Tekshirilmagan bandlarni o'tgan deb belgilamang. Yangi release APK faqat dizayn
+va asosiy funksiyalar amalda tekshirilgandan keyin hamda foydalanuvchi alohida
+APK tayyorlashni buyurgach yaratiladi. Kundalik skript faqat debug build yaratadi.
 
 Muammo bo'lsa: `.local/android/emulator.stdout.log`,
 `.local/android/emulator.stderr.log` va `adb -s SERIAL logcat` ni ko'ring.

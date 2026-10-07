@@ -100,4 +100,22 @@ class DateUtilsTest {
             TimeZone.setDefault(previousZone)
         }
     }
+
+    @Test
+    fun testAddMinutesCumulativeAndWrap() {
+        // 14:30 + 15 -> 14:45
+        assertEquals(Pair(14, 45), DateUtils.addMinutes(14, 30, 15))
+
+        // 14:45 + 30 -> 15:15
+        assertEquals(Pair(15, 15), DateUtils.addMinutes(14, 45, 30))
+
+        // 15:15 + 60 -> 16:15
+        assertEquals(Pair(16, 15), DateUtils.addMinutes(15, 15, 60))
+
+        // Midnight roll over: 23:50 + 15 -> 00:05
+        assertEquals(Pair(0, 5), DateUtils.addMinutes(23, 50, 15))
+
+        // Midnight roll over: 23:30 + 60 -> 00:30
+        assertEquals(Pair(0, 30), DateUtils.addMinutes(23, 30, 60))
+    }
 }

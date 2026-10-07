@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,7 +27,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import com.example.kunlikvazifalar.data.model.TaskPriority
 
 @Composable
@@ -36,12 +39,33 @@ fun AddTaskDialog(
     isSaving: Boolean = false
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
     var taskText by rememberSaveable { mutableStateOf("") }
     var selectedTime by rememberSaveable { mutableStateOf<String?>(null) }
     var hasError by rememberSaveable { mutableStateOf(false) }
     var priority by rememberSaveable { mutableStateOf(TaskPriority.NORMAL) }
+    var showTimePickerSheet by rememberSaveable { mutableStateOf(false) }
+
+    if (showTimePickerSheet) {
+        KenzoTimePickerBottomSheet(
+            initialTime = selectedTime,
+            onSave = { time ->
+                selectedTime = time
+                showTimePickerSheet = false
+            },
+            onCancel = {
+                showTimePickerSheet = false
+            },
+            onClear = {
+                selectedTime = null
+                showTimePickerSheet = false
+            }
+        )
+    }
 
     AlertDialog(
+        modifier = Modifier.imePadding(),
+        properties = DialogProperties(decorFitsSystemWindows = false),
         onDismissRequest = {
             if (!isSaving) onDismiss()
         },
@@ -90,9 +114,8 @@ fun AddTaskDialog(
                     Row {
                         OutlinedButton(
                             onClick = {
-                                TimePickerHelper.showTimePicker(context, selectedTime) { time ->
-                                    selectedTime = time
-                                }
+                                focusManager.clearFocus()
+                                showTimePickerSheet = true
                             },
                             shape = RoundedCornerShape(8.dp),
                             enabled = !isSaving

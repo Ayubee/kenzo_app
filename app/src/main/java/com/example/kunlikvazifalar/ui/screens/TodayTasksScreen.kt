@@ -148,13 +148,35 @@ fun TodayTasksScreen(
                     }
                 }
 
-                // Matnli aniq progress tavsifi
-                if (total > 0) {
+                if (total <= 7) {
+                    val progress by animateFloatAsState(
+                        targetValue = if (total == 0) 0f else completedCount.toFloat() / total,
+                        animationSpec = tween(if (animate) 200 else 0), label = "compact-progress"
+                    )
+                    LinearProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp).height(4.dp)
+                            .clip(RoundedCornerShape(2.dp)),
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.outlineVariant
+                    )
+                }
+
+                // Zero tasks also has a defined count, without dividing by zero.
+                run {
                     Text(
                         text = "Bugun $total ta vazifadan $completedCount tasi bajarildi",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 6.dp)
+                    )
+                }
+                if (completedCount > 0) {
+                    Text(
+                        text = if (completedCount == total) "Bugungi rejangiz bajarildi" else "Yana bitta ish bajarildi",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp)
                     )
                 }
 

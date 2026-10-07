@@ -96,4 +96,13 @@ object DateUtils {
     fun formatTime24(hour: Int, minute: Int): String {
         return String.format(Locale.US, "%02d:%02d", hour, minute)
     }
+
+    /**
+     * Soat va daqiqaga berilgan daqiqalarni kumulyativ qo'shish (24 soat doirasida aylanadi).
+     */
+    fun addMinutes(hour: Int, minute: Int, minutesToAdd: Int): Pair<Int, Int> {
+        val totalMinutes = hour * 60 + minute + minutesToAdd
+        val normalized = ((totalMinutes % 1440) + 1440) % 1440
+        return Pair(normalized / 60, normalized % 60)
+    }
 }

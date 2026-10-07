@@ -2,7 +2,7 @@
 
 An offline Android planner with an Uzbek interface. Save today's tasks, choose an optional time, and keep earlier days in a separate history.
 
-**Development status: Unreleased.** Current code adds priorities, repeat reminders, motion preferences and the official logo/splash. The distributed version stays **1.1.0 / 2** until the owner requests a new release. The existing 1.1.0 APK below contains the earlier feature set. [Current checks](docs/UNRELEASED-VERIFICATION.md) · [Security audit](docs/SECURITY-AUDIT.md).
+**Development status: Unreleased fixes.** The resumed workspace already contained **1.2.0 / 3**, the warm minimal design, a bottom-sheet time picker and a 1.2.0 APK. Current keyboard/theme/accessibility fixes are debug-only; that existing APK was not rebuilt and does not contain these fixes. Version and signing keys are preserved. [Current checks](docs/UNRELEASED-VERIFICATION.md) · [Security audit](docs/SECURITY-AUDIT.md).
 
 [O'zbekcha README](README.uz.md) · [Verification](docs/VERIFICATION.md) · [Three-agent review](docs/REVIEW.md) · [Changelog](CHANGELOG.md)
 
@@ -27,10 +27,11 @@ Actual Unreleased screens captured from the running debug app on the project's s
 - Notifications open the corresponding task; a private **Bajarildi** action completes it and cancels pending reminders. Opening alone does not complete it.
 - Today's completion count and progress; subtle 200 ms motion, optional completion haptics, and stored animation/vibration settings that respect system controls.
 - Official K/checkmark adaptive and legacy icons; standard Android splash with light/dark backgrounds and no artificial delay.
+- Warm minimal palette and a scrollable bottom-sheet time picker with cumulative +15/+30/+60-minute shortcuts, custom time and an untimed option.
 - Permission status and recovery actions in Settings.
 - Data-preserving APK updates using the same package ID and signing key.
 
-The design adapts the supplied reference's warm background, bold typography, yellow accents, rounded outlined cards and offset shadows into a softer task-focused interface.
+The current warm minimal design uses cream/beige surfaces, terracotta controls, calm green completion marks and the official yellow logo. It preserves the reference's bold typography and rounded cards.
 
 ## Stack
 
@@ -65,7 +66,7 @@ Elsewhere, install Android SDK platform 36 and build tools, configure `sdk.dir` 
 .\gradlew.bat :app:connectedDebugAndroidTest
 ```
 
-Previously prepared signed APK: **[kenzo-app-1.1.0.apk](kenzo-app-1.1.0.apk)**. It predates the Unreleased changes. `versionName=1.1.0`, `versionCode=2`, package `com.example.kunlikvazifalar`. No new release was generated for the current work.
+Existing signed APK: **[kenzo-app-1.2.0.apk](kenzo-app-1.2.0.apk)**, already present on resume: `versionName=1.2.0`, `versionCode=3`, package `com.example.kunlikvazifalar`. It predates the current Unreleased fixes. No new release was generated in this continuation. [Earlier 1.1.0](kenzo-app-1.1.0.apk) remains available as a historical build.
 Release signing uses the existing private keystore configured by untracked `keystore.properties`. Never commit keys/passwords. Debug and release certificates differ: keep the same signing track for in-place updates.
 
 ## Quality and limits

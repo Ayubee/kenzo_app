@@ -2,7 +2,7 @@
 
 O'zbekcha interfeysli, oflayn Android rejalashtiruvchi. Bugungi vazifalarni saqlang, ixtiyoriy vaqt belgilang va oldingi kunlarni alohida tarixda ko'ring.
 
-**Joriy kod: Unreleased.** Prioritetlar, takroriy eslatmalar, animatsiya sozlamalari va rasmiy logo/splash qo'shildi. Tarqatiladigan versiya **1.1.0 / 2** holida; yangi release faqat egasi alohida so'ragach yaratiladi. Quyidagi mavjud APK yangi o'zgarishlarni o'z ichiga olmaydi. [Joriy tekshiruv](docs/UNRELEASED-VERIFICATION.md) · [Xavfsizlik auditi](docs/SECURITY-AUDIT.md).
+**Joriy tuzatishlar: Unreleased.** Ish davom ettirilganda diskda **1.2.0 / 3**, iliq minimal dizayn, pastdan ochiladigan vaqt tanlagichi va mavjud 1.2.0 APK bor edi. Klaviatura, mavzu va katta shriftga oid hozirgi tuzatishlar faqat debug'da; mavjud APK qayta yig‘ilmadi va bu tuzatishlarni o‘z ichiga olmaydi. Versiya va imzolash kalitlari saqlandi. [Joriy tekshiruv](docs/UNRELEASED-VERIFICATION.md) · [Xavfsizlik auditi](docs/SECURITY-AUDIT.md).
 
 [English README](README.md) · [Amaliy tekshiruvlar](docs/VERIFICATION.md) · [Uch agent tekshiruvi](docs/REVIEW.md) · [O'zgarishlar tarixi](CHANGELOG.md)
 
@@ -27,6 +27,7 @@ Loyihaning bitta Android 16 emulatorida ishlayotgan Unreleased debug'dan olingan
 - Bildirishnoma tegishli vazifani ochadi; `Bajarildi` amali bazani yangilab, qolgan eslatmalarni bekor qiladi. Faqat ochish bajarildi degani emas.
 - Bugungi hisob/progress, 200 ms sokin animatsiya va ixtiyoriy yengil vibratsiya; saqlanadigan sozlamalar va tizim cheklovlarini hurmat qilish.
 - K + galochka rasmiy adaptive/legacy ikonkalari va sun'iy kutishsiz standart Android splash.
+- Iliq minimal ranglar; +15/+30/+60 daqiqalik kumulyativ tugmalar, boshqa vaqt va vaqtsiz qoldirish imkoniyatli, aylantiriladigan vaqt tanlagichi.
 - Sozlamalarda haqiqiy ruxsat holati va ruxsatni tiklash tugmalari.
 - Bir xil package ID va imzo bilan ma'lumotlarni saqlab yangilash.
 
@@ -55,7 +56,7 @@ Boshqa kompyuterda Android SDK platform 36 va build tools o'rnating, `local.prop
 .\gradlew.bat :app:connectedDebugAndroidTest
 ```
 
-Avval tayyorlangan APK: **[kenzo-app-1.1.0.apk](kenzo-app-1.1.0.apk)**. U Unreleased o'zgarishlaridan oldingi build: `versionName=1.1.0`, `versionCode=2`, package: `com.example.kunlikvazifalar`. Hozir yangi release APK yaratilmadi.
+Diskda avvaldan mavjud APK: **[kenzo-app-1.2.0.apk](kenzo-app-1.2.0.apk)**: `versionName=1.2.0`, `versionCode=3`, package: `com.example.kunlikvazifalar`. U hozirgi Unreleased tuzatishlaridan oldingi build. Bu davom ettirishda yangi release APK yaratilmadi. [Avvalgi 1.1.0](kenzo-app-1.1.0.apk) tarixiy build sifatida saqlandi.
 Mavjud release kaliti maxfiy `keystore.properties` orqali ishlatiladi. Kalit va parollarni Git'ga kiritmang. Debug va release imzolari farqli: ma'lumotlarni saqlab yangilash uchun bir xil imzo yo'nalishida qoling.
 
 ## Tekshiruv va cheklovlar
